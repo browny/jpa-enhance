@@ -16,6 +16,8 @@
     <properties>
 		<version.project>${project.version}</version.project>
 
+		<github.global.server>github</github.global.server>
+
         <!-- Versions could be used from sub modules -->
         <version.cglib>2.2</version.cglib>
         <version.commons.lang3>3.1</version.commons.lang3>
@@ -216,7 +218,38 @@
 						</execution>
 					</executions>
 				</plugin>
+				<plugin>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>2.8.1</version>
+					<configuration>
+						<altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>com.github.github</groupId>
+					<artifactId>site-maven-plugin</artifactId>
+					<version>0.8</version>
+					<configuration>
+						<message>Maven artifacts for ${project.version}</message>
+						<noJekyll>true</noJekyll>
+						<outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
+						<branch>refs/heads/mvn-repo</branch>
+						<includes><include>**/*</include></includes>
+						<repositoryName>jpa-enhance</repositoryName>
+						<repositoryOwner>browny</repositoryOwner>
+					</configuration>
+					<executions>
+						<!-- run site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
+						<execution>
+							<goals>
+								<goal>site</goal>
+							</goals>
+							<phase>deploy</phase>
+						</execution>
+					</executions>
+				</plugin>
             </plugins>
+
         </pluginManagement>
     </build>
 
@@ -239,9 +272,10 @@
 
 	<distributionManagement>
 		<repository>
-			<id>deployment-mikelue</id>
-			<name>MikeLue Repository</name>
-			<url>http://mikelue.no-ip.org:8055/nexus/content/repositories/releases/</url>
+			<id>internal.repo</id>
+			<name>Temporary Staging Repository</name>
+			<url>file://${project.build.directory}/mvn-repo</url>
 		</repository>
 	</distributionManagement>
+
 </project>
